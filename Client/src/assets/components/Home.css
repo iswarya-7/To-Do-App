@@ -1,0 +1,141 @@
+body {
+    background: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
+    font-family: 'poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+
+}
+
+.home {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+.top {
+    text-align: center;
+    margin-bottom: 30px;
+    /* padding: 0 1rem; */
+}
+
+.top h2 {
+    font-size: 30px;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.934);
+    padding-bottom: 10px;
+}
+
+.top h4 {
+    font-size: 20px;
+    color: #555;
+    font-weight: 400;
+    padding-bottom: 15px;
+}
+
+.bottom {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+    flex-wrap: wrap;
+}
+
+button {
+    width: 140px;
+    height: 45px;
+    border-radius: 5px;
+    border: none;
+    font-weight: 500;
+}
+
+.bottom {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+    flex-wrap: wrap;
+}
+
+.card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    width: 300px;
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card p:first-child {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.card h3 {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: black;
+}
+
+.card p {
+    color: #555;
+    font-size: 0.95rem;
+}
+
+/*  Responsive Design */
+@media (max-width: 768px) {
+    .top h2 {
+        font-size: 24px;
+    }
+
+    .top h4 {
+        font-size: 16px;
+    }
+
+    .card {
+        width: 90%;
+    }
+
+    .bottom {
+        padding: 1rem;
+        gap: 1.2rem;
+    }
+
+    button {
+        width: 120px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .top h2 {
+        font-size: 20px;
+    }
+
+    .top h4 {
+        font-size: 14px;
+    }
+
+    .card {
+        width: 100%;
+    }
+
+    .start {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+   
+}
