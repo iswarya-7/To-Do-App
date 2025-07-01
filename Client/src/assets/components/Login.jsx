@@ -3,7 +3,7 @@ import './Register.css'
 import { Link, useNavigate } from 'react-router-dom'
 const Login = () => {
 
-    const naviagte = useNavigate();
+    const navigate = useNavigate();
 
     // state for storing login credentials
     let [loginData, setLoginData] = useState({
@@ -41,7 +41,7 @@ const Login = () => {
         const validateErrors = validate();
         setErrors(validateErrors);
 
-        // ❌ Don't continue if there are validation errors
+        //  Don't continue if there are validation errors
         if (Object.keys(validateErrors).length > 0) {
             return;
         }
@@ -66,9 +66,10 @@ const Login = () => {
                 localStorage.setItem("userId", data.data.userId); // make sure backend returns userId                
                 localStorage.setItem("userName", data.data.userName); // make sure backend returns userId                
 
+                // protected flag
+                localStorage.setItem("isLoggedIn", "true");
                 alert("Login Successful!");
-
-                naviagte('/dashboard');
+                navigate('/dashboard');
                 setLoginData({
                     email: "",
                     password: ""

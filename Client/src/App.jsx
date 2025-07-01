@@ -8,6 +8,9 @@ import Dashboard from './assets/components/dashboard'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import AddTask1 from './assets/components/AddTask1'
 import UpdateTask from './assets/components/UpdateTask'
+import NotFound from './assets/components/NotFound'
+import ProtectedRoute from './assets/components/ProtectedRoute'
+
 
 function App() {
 
@@ -19,17 +22,22 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/addtask" element={<AddTask1 />} />
           <Route path="/updatetask" element={<UpdateTask />} />
+          <Route path="*" element={<NotFound />} />
 
+
+          <Route path='/dashboard'
+            element={
+              <ProtectedRoute>
+                <Dashboard />  {/* children component */}
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
-
-
-
     </>
-  )
+  );
 }
 
 export default App

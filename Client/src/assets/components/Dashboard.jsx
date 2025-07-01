@@ -48,6 +48,9 @@ const Dashboard = () => {
     let [taskDatas, SetTaskDatas] = useState([])
     let [error, setError] = useState("")
 
+
+    // state for counting the all,pending,completed tasks
+    // to retrieve the data
     useEffect(() => {
         fetch(`http://localhost:8080/users/task/${userId}`, { method: "GET" })
             .then((response) => response.json())
@@ -79,20 +82,19 @@ const Dashboard = () => {
             });
     }
 
-    // let handleUndo = (taskId) => {
-    //     axios.put(`http://localhost:8080/task/updateStatus/${taskId}`)
-    //         .then((res) => {
-    //             alert("Task marked as completed");
-    //             refreshTasks(); // reloads latest task list
-    //         })
-    //         .catch((err) => {
-    //             console.error("Error updating status", err.message);
-    //         });
-    // }
+    //  handle logout
+    let handleLogout = () => {
+        localStorage.clear();
+        alert("Logged out successfully !");
+        navigate('/')
+    }
 
 
-    // handle delete
-
+    // task count storing
+    const totalTasks = taskDatas.length;
+    const pendingTasks = taskDatas.filter(task => task.status === "Pending").length;
+    const completedTasks = taskDatas.filter(task => task.status === "Completed").length;
+  
 
     const handleDelete = (taskId) => {
         fetch(`http://localhost:8080/users/deleteTask/${taskId}`, { method: "DELETE" })
@@ -135,7 +137,7 @@ const Dashboard = () => {
                         {/* <button type='button' className='btn' > */}
 
                         {/* </button> */}
-                        <button type='button' className='btn' onClick={() => { navigate('/') }}>
+                        <button type='button' className='btn' onClick={handleLogout}>
                             <IoLogOutOutline />
                         </button>
 
@@ -148,15 +150,15 @@ const Dashboard = () => {
                 <div className="chart">
                     <div className="count-card">
                         <h5>Total Tasks</h5>
-                        <h4>3</h4>
+                        <h4>{totalTasks}</h4>
                     </div>
                     <div className="count-card">
                         <h5>Completed</h5>
-                        <h4>1</h4>
+                        <h4>{completedTasks}</h4>
                     </div>
                     <div className="count-card">
                         <h5>Pending</h5>
-                        <h4>2</h4>
+                        <h4>{pendingTasks}</h4>
                     </div>
                 </div>
 
@@ -164,7 +166,6 @@ const Dashboard = () => {
                     <h4>Your Tasks</h4>
                     {taskDatas.length === 0 && (
                         <div style={addTaskbtn}>
-                            {/* <p style={{ color: "black" }}>Welcome! You don’t have any tasks yet.</p> */}
                             <p>Click the <strong>"Add Task"</strong> button to create your first task and get started!</p>
                             <Button style={{ backgroundColor: "black", color: "white", border: "none" }} onClick={() => setModalAddShow(true)}>
                                 <FaPlus /> Add Task
