@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
-import './Register.css'
+import '../assets/css/Register.css'
 import { Link, useNavigate } from 'react-router-dom'
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+
 const Login = () => {
 
     const navigate = useNavigate();
@@ -11,8 +13,12 @@ const Login = () => {
         password: ""
     })
 
+
     // storing the errors in object
     let [errors, setErrors] = useState({})
+
+    // state for show the eye icon in password
+    let [showPassword, setShowPassword] = useState(false);
 
     // login form validation
     const validate = () => {
@@ -21,11 +27,11 @@ const Login = () => {
 
         if (!loginData.email.trim()) {
             errors.email = "Email is Required"
-            alert("enter your email");
+            // alert("enter your email");
         }
         else if (!loginData.password.trim()) {
             errors.password = "password is required"
-            alert("password is required");
+            // alert("password is required");
         }
 
         return errors;
@@ -63,13 +69,20 @@ const Login = () => {
                 console.log("Login success:", data);
 
                 // 👇 Save userId in localStorage
-                localStorage.setItem("userId", data.data.userId); // make sure backend returns userId                
-                localStorage.setItem("userName", data.data.userName); // make sure backend returns userId                
+                localStorage.setItem("userId", data.data.user.userId); // make sure backend returns userId                
+                localStorage.setItem("userName", data.data.user.userName); // make sure backend returns userId                
 
                 // protected flag
-                localStorage.setItem("isLoggedIn", "true");
+                // localStorage.setItem("isLoggedIn", "true");
+
+                // After login API response
+                localStorage.setItem("token", data.data.token);
+                localStorage.setItem("loginTime", new Date().getTime()); // store current time
+
+
                 alert("Login Successful!");
                 navigate('/dashboard');
+                // empty after login
                 setLoginData({
                     email: "",
                     password: ""
@@ -88,6 +101,13 @@ const Login = () => {
         setLoginData(
             { ...loginData, [e.target.name]: e.target.value })
     }
+
+    // handle the password eye icon
+    let togglePassword = (() => {
+        setShowPassword((prev) => !prev)
+    })
+
+
     return (
         <>
             <div className="login">
@@ -101,21 +121,30 @@ const Login = () => {
                         <div className="input">
                             <label >Email</label>
                             <input type="mail" name='email' value={loginData.email} placeholder='Enter your email' onChange={handleClick} />
-                            {/* {errors.email && <p className="error">{errors.email}</p>} */}
+                            {errors.email && <p className="error">{errors.email}</p>}
                         </div>
-                        <div className="input">
+                        <div className="input" style={{ position: "relative" }} >
                             <label >Password</label>
-                            <input type="text" name='password' value={loginData.password} placeholder='Enter your password' onChange={handleClick} />
-                            {/* {errors.password && <p className="error">{errors.password}</p>} */}
+                            <input type={showPassword ? "text" : "password"} name='password' value={loginData.password} placeholder='Enter your password' onChange={handleClick} />
+                            {loginData.password && (
+                                <span
+                                    style={{
+                                        position: "absolute",
+                                        top: "35%",
+                                        right: "15px",
+                                        cursor: "pointer"
+                                    }} onClick={togglePassword}>
+                                    {showPassword ? <AiOutlineEye /> : <AiOutlineEyeInvisible />}
+                                </span>
+                            )}
+                            {errors.password && <p className="error">{errors.password}</p>}
                             <p style={{ display: 'flex', justifyContent: 'end' }} className='forgot'><a href="#" style={{ color: "black", textDecoration: "none" }}>Forgot Password</a></p>
                         </div>
                     </div>
 
                     <div className="submit">
                         <button type='submit'>Sign In</button>
-                        <p>Don't have an account? <Link to="/register">Sign up</Link>
-                            {/* <Link to="signup" element={<Register />}>Sign up</Link> | */}
-                        </p>
+                        <p>Don't have an account? <Link to="/register">Sign up</Link></p>
                     </div>
                 </form>
             </div>

@@ -1,4 +1,4 @@
-import './Home.css';
+import '../assets/css/Home.css'
 import { FaPlus } from "react-icons/fa";
 import { IoTimeOutline } from "react-icons/io5";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";

@@ -7,12 +7,10 @@ import { MdOutlineDelete } from "react-icons/md";
 import { CiCalendar } from "react-icons/ci";
 import { IoMdTime } from "react-icons/io";
 import Button from 'react-bootstrap/Button';
-import './Dashboard.css'
-import AddTask1 from './AddTask1';
-import UpdateTask from './UpdateTask';
+import '../assets/css/Dashboard.css'
+import TaskModal from './TaskModal';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
 
 const Dashboard = () => {
 
@@ -32,9 +30,6 @@ const Dashboard = () => {
 
 
 
-
-
-
     // state for add task modal
     const [modalAddShow, setModalAddShow] = useState(false);
     const [modalUpdateShow, setModalUpdateShow] = useState(false);
@@ -49,6 +44,21 @@ const Dashboard = () => {
     let [error, setError] = useState("")
 
 
+
+    // //set the dashboard timeout
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            localStorage.clear();
+            alert("Session expired. Please log in again.");
+            navigate('/login');
+        }, 5 * 60 * 1000); // 5 minutes
+
+        return () => clearTimeout(timeout);
+    }, []);
+
+   
+
+
     // state for counting the all,pending,completed tasks
     // to retrieve the data
     useEffect(() => {
@@ -58,6 +68,7 @@ const Dashboard = () => {
             .catch((error) => setError(error.message))
 
     }, [])
+
 
 
     // handle Update
@@ -94,7 +105,7 @@ const Dashboard = () => {
     const totalTasks = taskDatas.length;
     const pendingTasks = taskDatas.filter(task => task.status === "Pending").length;
     const completedTasks = taskDatas.filter(task => task.status === "Completed").length;
-  
+
 
     const handleDelete = (taskId) => {
         fetch(`http://localhost:8080/users/deleteTask/${taskId}`, { method: "DELETE" })
@@ -124,13 +135,16 @@ const Dashboard = () => {
                     <div className="right">
 
                         {/* modal for add task btn */}
-                        <Button onClick={() => setModalAddShow(true)}>
+                        <Button onClick={() => {
+                            setModalAddShow(true)
+                        }}>
                             <FaPlus /> Add Task
                         </Button>
-                        <AddTask1
+                        <TaskModal
                             show={modalAddShow}
                             onHide={() => setModalAddShow(false)}
                             refreshTasks={refreshTasks}
+                            mode='add'
                         />
 
 
@@ -167,7 +181,9 @@ const Dashboard = () => {
                     {taskDatas.length === 0 && (
                         <div style={addTaskbtn}>
                             <p>Click the <strong>"Add Task"</strong> button to create your first task and get started!</p>
-                            <Button style={{ backgroundColor: "black", color: "white", border: "none" }} onClick={() => setModalAddShow(true)}>
+                            <Button style={{ backgroundColor: "black", color: "white", border: "none" }} onClick={() => {
+                                setModalAddShow(true);
+                            }}>
                                 <FaPlus /> Add Task
                             </Button>
                         </div>
@@ -242,12 +258,12 @@ const Dashboard = () => {
 
                 </div>
 
-                <UpdateTask
+                <TaskModal
                     show={modalUpdateShow}
                     onHide={() => setModalUpdateShow(false)}
                     task={selectedTask}
                     refreshTasks={refreshTasks}
-
+                    mode='edit'
                 />
             </div >
         </>
