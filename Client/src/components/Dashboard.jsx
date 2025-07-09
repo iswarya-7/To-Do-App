@@ -7,7 +7,7 @@ import { MdOutlineDelete } from "react-icons/md";
 import { CiCalendar } from "react-icons/ci";
 import { IoMdTime } from "react-icons/io";
 import Button from 'react-bootstrap/Button';
-import '../assets/css/Dashboard.css'
+import './Dashboard.css'
 import TaskModal from './TaskModal';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -28,6 +28,8 @@ const Dashboard = () => {
         cursor: "pointer"
     }
 
+    // get the token 
+    const token = sessionStorage.getItem("token");
 
 
     // state for add task modal
@@ -35,8 +37,8 @@ const Dashboard = () => {
     const [modalUpdateShow, setModalUpdateShow] = useState(false);
 
     // user data storing
-    const userName = localStorage.getItem("userName");
-    const userId = localStorage.getItem("userId");
+    const userName = sessionStorage.getItem("userName");
+    const userId = sessionStorage.getItem("userId");
     let [selectedTask, setSelectedTask] = useState(null);
 
     // state for storing taskData
@@ -45,10 +47,11 @@ const Dashboard = () => {
 
 
 
-    // //set the dashboard timeout
+    //set the dashboard timeout
     useEffect(() => {
         const timeout = setTimeout(() => {
             localStorage.clear();
+            sessionStorage.clear();
             alert("Session expired. Please log in again.");
             navigate('/login');
         }, 5 * 60 * 1000); // 5 minutes
@@ -56,14 +59,33 @@ const Dashboard = () => {
         return () => clearTimeout(timeout);
     }, []);
 
-   
+
+
+    
+
+
 
 
     // state for counting the all,pending,completed tasks
     // to retrieve the data
     useEffect(() => {
-        fetch(`http://localhost:8080/users/task/${userId}`, { method: "GET" })
-            .then((response) => response.json())
+        fetch(`http://localhost:8080/users/task/${userId}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then((response) => {
+                if (response.status === 401) {
+                        alert("Session expired. Please log in again.");
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        navigate('/login');
+                        // STOP the chain!
+                        throw new Error("Unauthorized");
+                    }
+                return response.json()
+            })
             .then((data) => SetTaskDatas(data))
             .catch((error) => setError(error.message))
 
@@ -74,8 +96,23 @@ const Dashboard = () => {
     // handle Update
     // used to refresh the data after updating the value
     const refreshTasks = () => {
-        fetch(`http://localhost:8080/users/task/${userId}`, { method: "GET" })
-            .then((response) => response.json())
+        fetch(`http://localhost:8080/users/task/${userId}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then((response) => {
+                if (response.status === 401) {
+                        alert("Session expired. Please log in again.");
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        navigate('/login');
+                        // STOP the chain!
+                        throw new Error("Unauthorized");
+                    }
+                return response.json()
+            })
             .then((data) => SetTaskDatas(data))
             .catch((error) => setError(error.message));
     };
@@ -83,12 +120,28 @@ const Dashboard = () => {
     console.log(taskDatas);
 
     let handleComplete = (taskId) => {
-        axios.put(`http://localhost:8080/task/updateStatus/${taskId}`)
+        axios.put(`http://localhost:8080/task/updateStatus/${taskId}`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
             .then((res) => {
+                if (res.status === 401) {
+                    alert("Session expired. Please log in again.");
+                    sessionStorage.clear();
+                    localStorage.clear();
+                    navigate('/login');
+                    // STOP the chain!
+                    throw new Error("Unauthorized");
+                }
+
                 alert("Task marked as completed");
                 refreshTasks(); // reloads latest task list
             })
             .catch((err) => {
+                if (err.message !== "Unauthorized") {
+                    alert("Failed to Updating Status");
+                }
                 console.error("Error updating status", err.message);
             });
     }
@@ -108,8 +161,24 @@ const Dashboard = () => {
 
 
     const handleDelete = (taskId) => {
-        fetch(`http://localhost:8080/users/deleteTask/${taskId}`, { method: "DELETE" })
+        fetch(`http://localhost:8080/users/deleteTask/${taskId}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
             .then((response) => {
+
+                if (response.status === 401) {
+                    alert("Session expired. Please log in again.");
+                    sessionStorage.clear();
+                    localStorage.clear();
+                    navigate('/login');
+                    // STOP the chain!
+                    throw new Error("Unauthorized");
+                }
+                // return response.json()
+
                 if (!response.ok) {
                     throw new Error("Failed to delete task");
                 }
@@ -122,6 +191,9 @@ const Dashboard = () => {
                 SetTaskDatas((prevTasks) => prevTasks.filter(task => task.id !== taskId));
             })
             .catch((error) => {
+                if (err.message !== "Unauthorized") {
+                    alert("Failed to Delete task");
+                }
                 console.error("Error deleting task:", error.message);
             });
     }

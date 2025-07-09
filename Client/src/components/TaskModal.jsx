@@ -1,7 +1,6 @@
-import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { Row, Col } from 'react-bootstrap';
-import '../assets/css/Register.css'
+import './Register.css'
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,10 +8,12 @@ import { useNavigate } from 'react-router-dom';
 const TaskModal = ({ show, onHide, refreshTasks, mode, task }) => {
 
     // navigate
-    const naviagte = useNavigate();
-    // get the userId from the localStorage
+    const navigate = useNavigate();
 
-    const userId = localStorage.getItem("userId");
+    // get the userId from the localStorage
+    const userId = sessionStorage.getItem("userId");
+    const token = sessionStorage.getItem("token");
+
 
     console.log("User ID from storage:", localStorage.getItem("userId"));
 
@@ -35,9 +36,9 @@ const TaskModal = ({ show, onHide, refreshTasks, mode, task }) => {
                 description: task.description,
                 dueDate: task.dueDate,
                 dueTime: task.dueTime,
-                user: {
-                    userId: parseInt(userId)
-                }
+
+                userId: parseInt(userId)
+
             })
         }
         else {
@@ -65,13 +66,24 @@ const TaskModal = ({ show, onHide, refreshTasks, mode, task }) => {
             fetch("http://localhost:8080/users/update", {
                 method: "PUT",
                 headers: {
-                    "Content-type": "application/json"
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(tasks)
             })
                 .then((response) => {
+                    console.log("Status:", response.status); //  check this
+                    if (response.status === 401) {
+                        alert("Session expired. Please log in again.");
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        navigate('/login');
+                        // STOP the chain!
+                        throw new Error("Unauthorized");
+                    }
+
                     if (!response.ok) {
-                        throw new Error("Failed to add task");
+                        throw new Error("Failed to Update task");
                     }
                     return response.json();
                 })
@@ -80,23 +92,36 @@ const TaskModal = ({ show, onHide, refreshTasks, mode, task }) => {
                     alert("Successfully Task Updated !");
                     onHide();
                     refreshTasks(); // refresh UI
-                    naviagte('/dashboard');
+                    navigate('/dashboard');
                     // store user or token in localStorage if needed
                     // localStorage.setItem("user", JSON.stringify(data));
                 })
                 .catch((err) => {
-                    alert("Failed to add task");
+
                     console.error(err);
+                    if (err.message !== "Unauthorized") {
+                        alert("Failed to Update task");
+                    }
                 });
         } else {
             fetch("http://localhost:8080/users/addTask", {
                 method: "POST",
                 headers: {
-                    "Content-type": "application/json"
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(tasks)
             })
                 .then((response) => {
+                    if (response.status === 401) {
+                        alert("Session expired. Please log in again.");
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        navigate('/login');
+                        // STOP the chain!
+                        throw new Error("Unauthorized");
+                    }
+
                     if (!response.ok) {
                         throw new Error("Failed to add task");
                     }
@@ -107,7 +132,7 @@ const TaskModal = ({ show, onHide, refreshTasks, mode, task }) => {
                     alert("Successfully Task Added !");
                     refreshTasks();
                     onHide();
-                    naviagte('/dashboard');
+                    navigate('/dashboard');
                     setTasks({
                         title: "",
                         description: "",
@@ -122,8 +147,11 @@ const TaskModal = ({ show, onHide, refreshTasks, mode, task }) => {
                     // localStorage.setItem("user", JSON.stringify(data));
                 })
                 .catch((err) => {
-                    alert("Failed to add task");
+
                     console.error(err);
+                    if (err.message !== "Unauthorized") {
+                        alert("Failed to Add task");
+                    }
                 });
         }
 
@@ -209,9 +237,7 @@ const TaskModal = ({ show, onHide, refreshTasks, mode, task }) => {
                     </form>
                 </div>
             </Modal.Body>
-            {/* <Modal.Footer>
-                <Button onClick={props.onHide}>Close</Button>
-            </Modal.Footer> */}
+          
         </Modal>
     );
 
